@@ -21,7 +21,6 @@
 define([
     "dojo/_base/declare",
     "mxui/widget/_WidgetBase",
-    "dijit/_TemplatedMixin",
 
     "mxui/dom",
     "dojo/dom",
@@ -34,16 +33,12 @@ define([
     "dojo/_base/lang",
     "dojo/text",
     "dojo/html",
-    "dojo/_base/event",
-
-    "dojo/text!AnnotateImageWidget/widget/template/AnnotateImageWidget.html"
-], function (declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, dojoProp, dojoGeometry, dojoClass, dojoStyle, dojoConstruct, dojoArray, dojoLang, dojoText, dojoHtml, dojoEvent, widgetTemplate) {
+    "dojo/_base/event"
+], function (declare, _WidgetBase, dom, dojoDom, dojoProp, dojoGeometry, dojoClass, dojoStyle, dojoConstruct, dojoArray, dojoLang, dojoText, dojoHtml, dojoEvent) {
     "use strict";
 
     // Declare widget's prototype.
-    return declare("AnnotateImageWidget.widget.AnnotateImageWidget", [ _WidgetBase, _TemplatedMixin ], {
-        // _TemplatedMixin will create our dom node using this HTML template.
-        templateString: widgetTemplate,
+    return declare("AnnotateImageWidget.widget.AnnotateImageWidget", [ _WidgetBase ], {
 
         // DOM elements
         imgNode: null,
@@ -58,6 +53,7 @@ define([
         // Internal variables. Non-primitives created in the prototype are shared between all widget instances.
         _handles: null,
         _contextObj: null,
+        imgUrl: null,
 
         // dojo.declare.constructor is called to construct the widget instance. Implement to initialize non-primitive properties.
         constructor: function () {
@@ -155,20 +151,25 @@ define([
         // Rerender the interface.
         _updateRendering: function (callback) {
             logger.debug(this.id + "._updateRendering");
-            this.colorSelectNode.disabled = this._readOnly;
-            this.colorInputNode.disabled = this._readOnly;
+            var newImgUrl;
 
             if (this._contextObj !== null) {
                 dojoStyle.set(this.domNode, "display", "block");
 
+                newImgUrl = document.location.origin + "/file?target=internal&guid=" + this._contextObj.getGuid();
+                if (newImgUrl !== this.imgUrl) {
+                    logger.debug(this.id + "._updateRendering: different URL");
+                    if (this.imgUrl) {
+                        logger.debug(this.id + "._updateRendering: anno.destroy");
+                    }
+                    this.imgUrl = newImgUrl;
+                    this.imgNode.setAttribute("src", this.imgUrl);
+                }
                 this._loadAnnotations();
 
             } else {
                 dojoStyle.set(this.domNode, "display", "none");
             }
-
-            // Important to clear all validations!
-            this._clearValidations();
 
             // The callback, coming from update, needs to be executed, to let the page know it finished rendering
             mendix.lang.nullExec(callback);

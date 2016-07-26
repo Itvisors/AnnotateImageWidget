@@ -16,7 +16,7 @@
         </property>
         <property key="allowChange" type="boolean" defaultValue="true">
             <caption>Allow change</caption>
-            <category>Layout</category>
+            <category>Configuration</category>
             <description>Whether to allow creating and changing of annotations. Turn off to show existing annotations only.</description>
         </property>
         <property key="annotationOnChangeMF" type="microflow" required="false" defaultValue="">
